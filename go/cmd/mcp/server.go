@@ -182,7 +182,7 @@ func registerServerTools(s *server.MCPServer) {
 	})
 
 	s.AddTool(mcp.NewTool("create_server",
-		mcp.WithDescription("Create a new vServer instance. Before calling this, use list_zones, list_images, list_flavor_families + list_flavors, list_volume_types, list_vpcs, and list_subnets to find valid IDs."),
+		mcp.WithDescription("Create a new vServer instance. Before calling this, use list_zones, list_images, list_flavor_families + list_flavors, list_volume_types, list_vpcs, and list_subnets to find valid IDs. Set attachFloating=true to assign a public floating IP to the server so it is reachable from the internet."),
 		req("name", "Server name (alphanumeric, hyphens, underscores; 5-65 chars)"),
 		req("zoneId", "Availability zone ID"),
 		req("networkId", "VPC ID"),
@@ -191,6 +191,7 @@ func registerServerTools(s *server.MCPServer) {
 		req("flavorId", "Flavor ID"),
 		req("rootDiskTypeId", "Root disk volume type ID"),
 		mcp.WithNumber("rootDiskSize", mcp.Description("Root disk size in GiB (minimum 20, default 20)")),
+		mcp.WithBoolean("attachFloating", mcp.Description("Attach a floating (public) IP to the server. When true, GreenNode automatically allocates and associates a public IP address, making the server directly reachable from the internet. Default false.")),
 		opt("securityGroup"),
 		opt("sshKeyId"),
 		opt("userName"),
@@ -208,6 +209,9 @@ func registerServerTools(s *server.MCPServer) {
 		}
 		if sz, ok := a["rootDiskSize"].(float64); ok && sz > 0 {
 			cmdArgs = append(cmdArgs, "--root-disk-size", fmt.Sprintf("%d", int(sz)))
+		}
+		if v, _ := a["attachFloating"].(bool); v {
+			cmdArgs = append(cmdArgs, "--attach-floating")
 		}
 		if v := sarg(a, "securityGroup"); v != "" {
 			cmdArgs = append(cmdArgs, "--security-group", v)
