@@ -309,6 +309,25 @@ func registerVolumeTools(s *server.MCPServer) {
 		return textResult(grn(args...)), nil
 	})
 
+	s.AddTool(mcp.NewTool("resize_volume",
+		mcp.WithDescription("Resize a volume's size in GiB, change its volume type, or both. At least one of size or newVolumeTypeId must be provided. Use list_volume_types to find a valid newVolumeTypeId. Volume size can only be increased, not decreased."),
+		req("volumeId", "Volume ID"),
+		mcp.WithNumber("size", mcp.Description("New size in GiB (must be >= current size; omit to keep current size)")),
+		opt("newVolumeTypeId"),
+	), func(_ context.Context, r mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		a := getArgs(r)
+		args := []string{"vserver", "volume", "resize",
+			"--volume-id", a["volumeId"].(string),
+		}
+		if sz, ok := a["size"].(float64); ok && sz > 0 {
+			args = append(args, "--size", fmt.Sprintf("%d", int(sz)))
+		}
+		if v, ok := a["newVolumeTypeId"].(string); ok && v != "" {
+			args = append(args, "--volume-type-id", v)
+		}
+		return textResult(grn(args...)), nil
+	})
+
 	s.AddTool(mcp.NewTool("delete_volume",
 		mcp.WithDescription("Delete a volume. This action is irreversible. Always confirm with the user before calling this."),
 		req("volumeId", "Volume ID"),

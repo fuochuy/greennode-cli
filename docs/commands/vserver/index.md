@@ -20,3 +20,9 @@ grn vserver <command> [options]
 | [stop-server](stop-server.md) | Stop a running vServer instance |
 | [reboot-server](reboot-server.md) | Reboot a vServer instance |
 | [delete-server](delete-server.md) | Delete a vServer instance |
+
+### Volume
+
+| Command | Description |
+|---------|-------------|
+| [resize-volume](resize-volume.md) | Resize a volume's size or change its volume type |

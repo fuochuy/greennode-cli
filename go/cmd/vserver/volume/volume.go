@@ -18,6 +18,6 @@ func init() {
 	VolumeCmd.AddCommand(listCmd)
 	VolumeCmd.AddCommand(getCmd)
 	VolumeCmd.AddCommand(createCmd)
+	VolumeCmd.AddCommand(resizeCmd)
 	VolumeCmd.AddCommand(deleteCmd)
-
 }

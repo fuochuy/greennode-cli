@@ -70,6 +70,8 @@ nav:
       - stop-server: commands/vserver/stop-server.md
       - reboot-server: commands/vserver/reboot-server.md
       - delete-server: commands/vserver/delete-server.md
+    - Volume:
+      - resize-volume: commands/vserver/resize-volume.md
   - Development:
     - Contributing: development/contributing.md
     - Release Process: development/release.md
