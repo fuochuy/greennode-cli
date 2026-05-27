@@ -6,7 +6,7 @@ Step-by-step guide to install the GreenNode CLI, configure credentials, and mana
 
 === "Build from source"
 
-    Requires [Go 1.22+](https://go.dev/dl/).
+    Requires [Go 1.25+](https://go.dev/dl/).
 
     ```bash
     git clone https://github.com/fuochuy/greennode-cli.git
@@ -19,7 +19,7 @@ Verify the installation:
 
 ```bash
 grn --version
-# grn-cli/1.3.1 Go/1.22.x darwin/arm64
+# grn-cli/1.3.1 Go/1.25.x darwin/arm64
 ```
 
 ---
