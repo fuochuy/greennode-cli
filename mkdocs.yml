@@ -1,0 +1,85 @@
+site_name: Green Node CLI
+site_url: https://vngcloud.github.io/greennode-cli/
+site_description: Universal Command Line Interface for Green Node
+repo_url: https://github.com/vngcloud/greennode-cli
+repo_name: vngcloud/greennode-cli
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  palette:
+    - scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - vServer CLI Setup: vserver_cli.md
+  - Usage:
+    - Getting Started: usage/getting-started.md
+    - Output Formatting: usage/output.md
+    - Pagination: usage/pagination.md
+    - Dry-run & Confirmation: usage/dry-run.md
+    - Global Options: usage/global-options.md
+  - VKS Commands:
+    - Overview: commands/vks/index.md
+    - Cluster:
+      - list-clusters: commands/vks/list-clusters.md
+      - get-cluster: commands/vks/get-cluster.md
+      - create-cluster: commands/vks/create-cluster.md
+      - update-cluster: commands/vks/update-cluster.md
+      - delete-cluster: commands/vks/delete-cluster.md
+    - Node Group:
+      - list-nodegroups: commands/vks/list-nodegroups.md
+      - get-nodegroup: commands/vks/get-nodegroup.md
+      - create-nodegroup: commands/vks/create-nodegroup.md
+      - update-nodegroup: commands/vks/update-nodegroup.md
+      - delete-nodegroup: commands/vks/delete-nodegroup.md
+    - Auto-Upgrade:
+      - set-auto-upgrade-config: commands/vks/set-auto-upgrade-config.md
+      - delete-auto-upgrade-config: commands/vks/delete-auto-upgrade-config.md
+    - Quota:
+      - get-quota: commands/vks/get-quota.md
+    - Waiter:
+      - wait-cluster-active: commands/vks/wait-cluster-active.md
+  - vServer Commands:
+    - Overview: commands/vserver/index.md
+    - Server:
+      - list-servers: commands/vserver/list-servers.md
+      - get-server: commands/vserver/get-server.md
+      - create-server: commands/vserver/create-server.md
+      - start-server: commands/vserver/start-server.md
+      - stop-server: commands/vserver/stop-server.md
+      - reboot-server: commands/vserver/reboot-server.md
+      - delete-server: commands/vserver/delete-server.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Release Process: development/release.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
