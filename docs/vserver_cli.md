@@ -53,7 +53,7 @@ Verify the installation:
 
 ```bash
 grn --version
-# grn-cli/1.3.1 Go/1.22.x darwin/arm64
+# grn-cli/1.3.2 Go/1.22.x darwin/arm64
 ```
 
 ---
