@@ -1,147 +1,283 @@
-# GreenNode CLI
+# vServer CLI Setup Guide
 
-The GreenNode CLI (`grn`) is a unified tool to manage your GreenNode services from the command line.
+Step-by-step guide to install the GreenNode CLI, configure credentials, and manage vServer instances — including optional Claude Desktop AI integration via MCP.
 
-- [Getting Started](#getting-started)
-- [Getting Help](#getting-help)
-- [More Resources](#more-resources)
+---
 
-## Getting Started
+## Step 1 — Install
 
-### Requirements
+Download the latest pre-built binary from [GitHub Releases](https://github.com/fuochuy/greennode-cli/releases/latest).
 
-- No dependencies required — `grn` is a single binary
+=== "macOS (Apple Silicon)"
 
-### Installation
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-darwin-arm64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
 
-Download the latest binary for your platform from [GitHub Releases](https://github.com/vngcloud/greennode-cli/releases):
+=== "macOS (Intel)"
 
-**macOS / Linux:**
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-darwin-amd64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
 
-```bash
-# Download (replace OS and ARCH as needed)
-curl -L -o grn https://github.com/vngcloud/greennode-cli/releases/latest/download/grn-darwin-arm64
-chmod +x grn
-sudo mv grn /usr/local/bin/
-```
+=== "Linux (amd64)"
 
-**Or build from source:**
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-linux-amd64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
 
-```bash
-git clone https://github.com/vngcloud/greennode-cli.git
-cd greennode-cli/go
-go build -o grn .
-sudo mv grn /usr/local/bin/
-```
+=== "Linux (arm64)"
 
-**Verify installation:**
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-linux-arm64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
+
+=== "Windows"
+
+    Download [`grn-windows-amd64.exe`](https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-windows-amd64.exe), rename it to `grn.exe`, and move it to a folder in your `PATH` (e.g. `C:\Windows\System32\`).
+
+=== "Build from source"
+
+    Requires [Go 1.21+](https://go.dev/dl/).
+
+    ```bash
+    git clone https://github.com/fuochuy/greennode-cli.git
+    cd greennode-cli
+    make install
+    ```
+
+Verify the installation:
 
 ```bash
 grn --version
-# grn-cli/0.1.0 Go/1.22.2 darwin/arm64
+# grn-cli/1.3.1 Go/1.25.x darwin/arm64
 ```
 
-### Configuration
+---
 
-Before using the GreenNode CLI, you need to configure your credentials. There are three ways:
+## Step 2 — Get your credentials
 
-**Method 1: Environment variables**
+1. Go to [VNG Cloud IAM Portal](https://hcm-3.console.vngcloud.vn/iam/)
+2. Navigate to **Service Accounts** → create a new Service Account
+3. Copy the **Client ID** and **Client Secret**
 
-```bash
-export GRN_ACCESS_KEY_ID=your-client-id
-export GRN_SECRET_ACCESS_KEY=your-client-secret
-export GRN_DEFAULT_REGION=HCM-3
-export GRN_DEFAULT_PROJECT_ID=pro-xxxxxxxx   # optional
-```
+---
 
-**Method 2: Interactive setup (recommended)**
+## Step 3 — Configure the CLI
+
+Run the interactive setup wizard:
 
 ```bash
 grn configure
 ```
 
+You will be prompted for each value:
+
 ```
-GRN Client ID [None]: <your-client-id>
-GRN Client Secret [None]: <your-client-secret>
-Default region name [HCM-3]:
-Default output format [json]:
-Project ID (leave blank to auto-detect) [None]:
+GRN Client ID [None]: <paste your Client ID>
+GRN Client Secret [None]: <paste your Client Secret>
+Default region name [HCM-3]:                        ← press Enter to keep HCM-3
+Default output format [json]:                        ← press Enter to keep json
+Project ID (leave blank to auto-detect) [None]:      ← press Enter to auto-detect
 Fetching project_id from HCM-3...
-Auto-detected project_id: pro-xxxxxxxx
+Auto-detected project_id: pro-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-**Method 3: Credentials file (manual)**
-
-```ini
-# ~/.greenode/credentials
-[default]
-client_id = your-client-id
-client_secret = your-client-secret
-```
-
-```ini
-# ~/.greenode/config
-[default]
-region = HCM-3
-output = json
-project_id = pro-xxxxxxxx
-```
-
-Credentials are obtained from the [VNG Cloud IAM Portal](https://hcm-3.console.vngcloud.vn/iam/) under Service Accounts.
-
-Credential resolution order: environment variables take priority over the credentials file.
-
-To use multiple profiles:
+Verify what was saved:
 
 ```bash
-grn configure --profile staging
-grn --profile staging vks list-clusters
+grn configure list
 ```
 
-For more configuration options, see the [Configuration Guide](https://vngcloud.github.io/greenode-cli/configuration/).
+```
+          Name                   Value            Type    Location
+          ----                   -----            ----    --------
+       profile               <not set>            None    None
+     client_id    ****************bc6e     config-file    ~/.greennode/credentials
+ client_secret    ****************c123     config-file    ~/.greennode/credentials
+        region                   HCM-3     config-file    ~/.greennode/config
+        output                    json     config-file    ~/.greennode/config
+    project_id       pro-xxxxxxxx          config-file    ~/.greennode/config
+```
 
-### Basic Commands
+---
 
-The GreenNode CLI uses a multi-part command structure:
+## Step 4 — Explore available resources
+
+Before creating a server, use these discovery commands to find valid IDs for each parameter:
 
 ```bash
-grn <service> <command> [options and parameters]
+# 1. List availability zones
+grn vserver volume-type list
+
+# 2. List OS images (use imageVersion to filter, e.g. "ubuntu-22")
+grn vserver image list --type os
+grn vserver image list --type os --image-version ubuntu-22
+
+# 3. List GPU images
+grn vserver image list --type gpu
+
+# 4. List instance families and CPU platforms
+grn vserver flavor list-families
+grn vserver flavor list-codes
+
+# 5. List flavors for a given family and CPU platform
+grn vserver flavor list --family general-purpose --code code-g
+
+# 6. List volume types for a zone
+grn vserver volume-type list --zone-id <zone-id> --type SSD
+
+# 7. List your VPCs and subnets
+grn vserver vpc list
+grn vserver subnet list --vpc-id <vpc-id>
 ```
 
-For example, to list your VKS clusters:
+---
+
+## Step 5 — Create a server
 
 ```bash
-grn vks list-clusters
+grn vserver server create \
+  --name my-server \
+  --zone-id <zone-id> \
+  --network-id <vpc-id> \
+  --subnet-id <subnet-id> \
+  --image-id <image-id> \
+  --flavor-id <flavor-id> \
+  --root-disk-type-id <volume-type-id> \
+  --root-disk-size 40
 ```
 
-To get help on any command:
+!!! tip "Missing a value?"
+Run each command without the flag to see available options. For example, running `grn vserver server create` without `--zone-id` will list valid zone IDs.
+
+---
+
+## Step 6 — Manage servers
 
 ```bash
-grn help
-grn vks
-grn vks create-cluster --help
+# List all servers
+grn vserver server list
+
+# Get server details
+grn vserver server get --server-id <server-id>
+
+# Start / stop / reboot
+grn vserver server start  --server-id <server-id>
+grn vserver server stop   --server-id <server-id>
+grn vserver server reboot --server-id <server-id>
+
+# Resize to a different flavor
+grn vserver server resize --server-id <server-id> --flavor-id <new-flavor-id>
+
+# Delete (shows preview and asks for confirmation)
+grn vserver server delete --server-id <server-id>
+
+# Delete without confirmation prompt
+grn vserver server delete --server-id <server-id> --force
 ```
 
-To check the version:
+---
+
+## Step 7 — Manage volumes, VPCs, and security groups
 
 ```bash
-grn --version
+# Volumes
+grn vserver volume list
+grn vserver volume create --name my-vol --zone-id <zone-id> --volume-type-id <type-id> --size 100
+grn vserver volume delete --volume-id <volume-id>
+
+# VPCs and subnets
+grn vserver vpc create --name my-vpc --cidr 10.0.0.0/16
+grn vserver subnet create --vpc-id <vpc-id> --cidr 10.0.1.0/24 --zone-id <zone-id>
+
+# Security groups and rules
+grn vserver secgroup list
+grn vserver secgroup create --name my-sg --description "Web servers"
+grn vserver secgroup rule create \
+  --secgroup-id <sg-id> \
+  --direction ingress \
+  --protocol tcp \
+  --port-range-min 80 \
+  --port-range-max 80 \
+  --remote-ip-prefix 0.0.0.0/0 \
+  --ether-type IPv4
 ```
 
-## Getting Help
+---
 
-The best way to interact with our team is through GitHub:
+## Step 8 — Claude Desktop MCP integration (optional)
 
-- [Open an issue](https://github.com/vngcloud/greennode-cli/issues/new/choose) — Bug reports and feature requests
-- Search [existing issues](https://github.com/vngcloud/greennode-cli/issues) before opening a new one
+This lets Claude Desktop manage your vServer resources in natural language — no commands needed.
 
-## More Resources
+### 8.1 Locate the Claude Desktop config file
 
-- [Documentation](https://vngcloud.github.io/greenode-cli/)
-- [Changelog](CHANGELOG.md)
-- [Contributing Guide](CONTRIBUTING.md)
-- [VNG Cloud Console](https://hcm-3.console.vngcloud.vn/)
+=== "macOS"
 
-## License
+    ```
+    ~/Library/Application Support/Claude/claude_desktop_config.json
+    ```
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+=== "Windows"
+
+    ```
+    %APPDATA%\Claude\claude_desktop_config.json
+    ```
+
+### 8.2 Add the MCP server
+
+Open the config file and add the `mcpServers` block (keep any existing keys):
+
+```json
+{
+  "mcpServers": {
+    "greennode": {
+      "command": "/usr/local/bin/grn",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+!!! note
+If you installed `grn` to a custom path, replace `/usr/local/bin/grn` with the full path from `which grn`.
+
+### 8.3 Restart Claude Desktop
+
+Quit and reopen Claude Desktop. In a new conversation you can now say:
+
+- *"List my vServer instances"*
+- *"Create a server named test-01 in zone HCM03-1A using Ubuntu 22"*
+- *"What flavors are available in the general-purpose family?"*
+- *"Stop server srv-xxxxxxxx"*
+- *"Show me all security groups"*
+
+Claude will call the appropriate `grn` commands automatically and return the results.
+
+---
+
+## Quick reference
+
+| Task | Command |
+|------|---------|
+| Configure credentials | `grn configure` |
+| Show current config | `grn configure list` |
+| List zones | `grn vserver volume-type list` |
+| List images | `grn vserver image list --type os` |
+| List flavors | `grn vserver flavor list --family <f> --code <c>` |
+| List servers | `grn vserver server list` |
+| Create server | `grn vserver server create --name ...` |
+| Resize server | `grn vserver server resize --server-id ... --flavor-id ...` |
+| Delete server | `grn vserver server delete --server-id ...` |
+| List volumes | `grn vserver volume list` |
+| List VPCs | `grn vserver vpc list` |
+| List security groups | `grn vserver secgroup list` |
+| Start MCP server | `grn mcp` |

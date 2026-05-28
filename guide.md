@@ -101,11 +101,11 @@ grn configure list
           Name                   Value            Type    Location
           ----                   -----            ----    --------
        profile               <not set>            None    None
-     client_id    ****************bc6e     config-file    ~/.greenode/credentials
- client_secret    ****************c123     config-file    ~/.greenode/credentials
-        region                   HCM-3     config-file    ~/.greenode/config
-        output                    json     config-file    ~/.greenode/config
-    project_id       pro-xxxxxxxx          config-file    ~/.greenode/config
+     client_id    ****************bc6e     config-file    ~/.greennode/credentials
+ client_secret    ****************c123     config-file    ~/.greennode/credentials
+        region                   HCM-3     config-file    ~/.greennode/config
+        output                    json     config-file    ~/.greennode/config
+    project_id       pro-xxxxxxxx          config-file    ~/.greennode/config
 ```
 
 ---
