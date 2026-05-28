@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/jmespath/go-jmespath"
@@ -147,10 +148,15 @@ func extractRows(data interface{}) []interface{} {
 	case []interface{}:
 		return v
 	case map[string]interface{}:
+		// List envelope: {"listData": [...]} or any key holding a slice
 		for _, value := range v {
 			if items, ok := value.([]interface{}); ok {
 				return items
 			}
+		}
+		// Single-object envelope: {"data": {...}} — unwrap the inner object
+		if inner, ok := v["data"].(map[string]interface{}); ok {
+			return []interface{}{inner}
 		}
 		return []interface{}{v}
 	default:
@@ -163,7 +169,100 @@ func mapKeys(m map[string]interface{}) []string {
 	for k := range m {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 	return keys
+}
+
+// formatHeader converts camelCase to uppercase words: "flavorId" → "FLAVOR ID"
+func formatHeader(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if i > 0 && c >= 'A' && c <= 'Z' {
+			b.WriteByte(' ')
+		}
+		if c >= 'a' && c <= 'z' {
+			b.WriteByte(c - 32)
+		} else {
+			b.WriteByte(c)
+		}
+	}
+	return b.String()
+}
+
+// FormatTableWithColumns renders data as a table using only the specified columns, in order.
+func FormatTableWithColumns(data interface{}, columns []string, query string, w io.Writer) error {
+	if w == nil {
+		w = os.Stdout
+	}
+	if query != "" {
+		result, err := jmespath.Search(query, data)
+		if err != nil {
+			return fmt.Errorf("JMESPath query error: %w", err)
+		}
+		data = result
+	}
+	if data == nil {
+		return nil
+	}
+	formatTableColumns(data, columns, w)
+	return nil
+}
+
+func formatTableColumns(data interface{}, columns []string, w io.Writer) {
+	if data == nil || isEmptyMap(data) {
+		return
+	}
+	rows := extractRows(data)
+	if len(rows) == 0 {
+		return
+	}
+	if _, ok := rows[0].(map[string]interface{}); !ok {
+		return
+	}
+
+	headers := make([]string, len(columns))
+	for i, c := range columns {
+		headers[i] = formatHeader(c)
+	}
+
+	colWidths := make([]int, len(columns))
+	for i, h := range headers {
+		colWidths[i] = len(h)
+	}
+
+	strRows := make([][]string, len(rows))
+	for i, row := range rows {
+		m, _ := row.(map[string]interface{})
+		strRows[i] = make([]string, len(columns))
+		for j, col := range columns {
+			val := fmt.Sprint(m[col])
+			if val == "<nil>" {
+				val = ""
+			}
+			strRows[i][j] = val
+			if len(val) > colWidths[j] {
+				colWidths[j] = len(val)
+			}
+		}
+	}
+
+	headerParts := make([]string, len(headers))
+	sepParts := make([]string, len(headers))
+	for i, h := range headers {
+		headerParts[i] = padRight(h, colWidths[i])
+		sepParts[i] = strings.Repeat("-", colWidths[i])
+	}
+	fmt.Fprintln(w, strings.Join(headerParts, " | "))
+	fmt.Fprintln(w, strings.Join(sepParts, "-+-"))
+
+	for _, row := range strRows {
+		parts := make([]string, len(row))
+		for i, val := range row {
+			parts[i] = padRight(val, colWidths[i])
+		}
+		fmt.Fprintln(w, strings.Join(parts, " | "))
+	}
 }
 
 func mapValues(m map[string]interface{}) []string {

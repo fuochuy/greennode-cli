@@ -76,3 +76,22 @@ func Output(cmd *cobra.Command, cfg *config.Config, data interface{}) error {
 
 	return formatter.Format(data, output, query, os.Stdout)
 }
+
+// OutputWithColumns formats and writes the API result to stdout.
+// When the output format is "table", only the specified columns are shown in the given order.
+func OutputWithColumns(cmd *cobra.Command, cfg *config.Config, data interface{}, columns []string) error {
+	output, _ := cmd.Flags().GetString("output")
+	query, _ := cmd.Flags().GetString("query")
+
+	if output == "" && cfg != nil {
+		output = cfg.Output
+	}
+	if output == "" {
+		output = "json"
+	}
+
+	if output == "table" && len(columns) > 0 {
+		return formatter.FormatTableWithColumns(data, columns, query, os.Stdout)
+	}
+	return formatter.Format(data, output, query, os.Stdout)
+}
