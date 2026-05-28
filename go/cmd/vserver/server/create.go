@@ -194,7 +194,7 @@ func runCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to create server: %w", err)
 	}
 
-	return outputResult(cmd, cfg, result)
+	return outputResult(cmd, cfg, transformServerResult(result))
 }
 
 func validateCreate(name, flavorID, imageID, networkID, subnetID, rootDiskTypeID, zoneID string, rootDiskSize int) error {
