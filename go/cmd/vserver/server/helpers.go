@@ -23,6 +23,20 @@ func outputResult(cmd *cobra.Command, cfg *config.Config, data interface{}) erro
 	return vserverclient.Output(cmd, cfg, data)
 }
 
+// serverListColumns defines the columns shown in table mode for server list.
+var serverListColumns = []string{"uuid", "name", "status", "privateIp", "publicIp"}
+
+// serverDetailColumns defines the columns shown in table mode for a single server.
+var serverDetailColumns = []string{"uuid", "name", "status", "privateIp", "publicIp", "zoneId", "createdAt"}
+
+func outputServerList(cmd *cobra.Command, cfg *config.Config, data interface{}) error {
+	return vserverclient.OutputWithColumns(cmd, cfg, data, serverListColumns)
+}
+
+func outputServerDetail(cmd *cobra.Command, cfg *config.Config, data interface{}) error {
+	return vserverclient.OutputWithColumns(cmd, cfg, data, serverDetailColumns)
+}
+
 func parseCommaSeparated(s string) []string {
 	result := []string{}
 	if s == "" {
