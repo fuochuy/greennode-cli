@@ -31,10 +31,10 @@ type Config struct {
 	Regions      map[string]map[string]string
 }
 
-// DefaultConfigDir returns ~/.greenode
+// DefaultConfigDir returns ~/.greennode
 func DefaultConfigDir() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".greenode")
+	return filepath.Join(home, ".greennode")
 }
 
 // LoadConfig loads configuration for the given profile.

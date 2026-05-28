@@ -37,16 +37,16 @@ var retryableStatusCodes = map[int]bool{
 	500: true, 502: true, 503: true, 504: true,
 }
 
-// GreenodeClient is an HTTP client for Greenode APIs with retry and auto token refresh.
-type GreenodeClient struct {
+// GreenNodeClient is an HTTP client for greennode APIs with retry and auto token refresh.
+type GreenNodeClient struct {
 	baseURL      string
 	tokenManager *auth.TokenManager
 	httpClient   *http.Client
 	debug        bool
 }
 
-// NewGreenodeClient creates a new API client.
-func NewGreenodeClient(baseURL string, tokenManager *auth.TokenManager, timeout time.Duration, verifySSL bool, debug bool) *GreenodeClient {
+// NewGreenNodeClient creates a new API client.
+func NewGreenNodeClient(baseURL string, tokenManager *auth.TokenManager, timeout time.Duration, verifySSL bool, debug bool) *GreenNodeClient {
 	if timeout == 0 {
 		timeout = defaultTimeout
 	}
@@ -56,7 +56,7 @@ func NewGreenodeClient(baseURL string, tokenManager *auth.TokenManager, timeout 
 		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec
 	}
 
-	return &GreenodeClient{
+	return &GreenNodeClient{
 		baseURL:      baseURL,
 		tokenManager: tokenManager,
 		httpClient: &http.Client{
@@ -68,37 +68,37 @@ func NewGreenodeClient(baseURL string, tokenManager *auth.TokenManager, timeout 
 }
 
 // Get performs a GET request.
-func (c *GreenodeClient) Get(path string, params map[string]string) (interface{}, error) {
+func (c *GreenNodeClient) Get(path string, params map[string]string) (interface{}, error) {
 	return c.request("GET", path, params, nil)
 }
 
 // Post performs a POST request with a JSON body.
-func (c *GreenodeClient) Post(path string, body interface{}) (interface{}, error) {
+func (c *GreenNodeClient) Post(path string, body interface{}) (interface{}, error) {
 	return c.request("POST", path, nil, body)
 }
 
 // Put performs a PUT request with a JSON body.
-func (c *GreenodeClient) Put(path string, body interface{}) (interface{}, error) {
+func (c *GreenNodeClient) Put(path string, body interface{}) (interface{}, error) {
 	return c.request("PUT", path, nil, body)
 }
 
 // Delete performs a DELETE request with optional query params.
-func (c *GreenodeClient) Delete(path string, params map[string]string) (interface{}, error) {
+func (c *GreenNodeClient) Delete(path string, params map[string]string) (interface{}, error) {
 	return c.request("DELETE", path, params, nil)
 }
 
 // DeleteWithBody performs a DELETE request with a JSON body.
-func (c *GreenodeClient) DeleteWithBody(path string, body interface{}) (interface{}, error) {
+func (c *GreenNodeClient) DeleteWithBody(path string, body interface{}) (interface{}, error) {
 	return c.request("DELETE", path, nil, body)
 }
 
 // GetRaw performs a GET request and returns the raw response body.
-func (c *GreenodeClient) GetRaw(path string, params map[string]string) (string, error) {
+func (c *GreenNodeClient) GetRaw(path string, params map[string]string) (string, error) {
 	return c.requestRaw("GET", path, params, nil)
 }
 
 // GetAllPages fetches all pages and merges items into a single result.
-func (c *GreenodeClient) GetAllPages(path string, pageSize int) (map[string]interface{}, error) {
+func (c *GreenNodeClient) GetAllPages(path string, pageSize int) (map[string]interface{}, error) {
 	if pageSize == 0 {
 		pageSize = 50
 	}
@@ -137,7 +137,7 @@ func (c *GreenodeClient) GetAllPages(path string, pageSize int) (map[string]inte
 	}, nil
 }
 
-func (c *GreenodeClient) request(method, path string, params map[string]string, body interface{}) (interface{}, error) {
+func (c *GreenNodeClient) request(method, path string, params map[string]string, body interface{}) (interface{}, error) {
 	rawBody, err := c.requestRaw(method, path, params, body)
 	if err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func (c *GreenodeClient) request(method, path string, params map[string]string, 
 	return result, nil
 }
 
-func (c *GreenodeClient) requestRaw(method, path string, params map[string]string, body interface{}) (string, error) {
+func (c *GreenNodeClient) requestRaw(method, path string, params map[string]string, body interface{}) (string, error) {
 	fullURL := c.baseURL + path
 
 	if len(params) > 0 {

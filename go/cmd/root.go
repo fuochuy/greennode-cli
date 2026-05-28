@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vngcloud/greennode-cli/cmd/configure"
 	"github.com/vngcloud/greennode-cli/cmd/mcp"
-	"github.com/vngcloud/greennode-cli/cmd/vks"
 	"github.com/vngcloud/greennode-cli/cmd/vserver"
 )
 
@@ -41,7 +40,10 @@ To get started, run:
 For help on any command:
   grn <command> --help`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		err := cmd.Help()
+		if err != nil {
+			return
+		}
 	},
 }
 
@@ -61,13 +63,24 @@ func init() {
 	rootCmd.SilenceErrors = true
 	rootCmd.SilenceUsage = true
 
+	err := rootCmd.RegisterFlagCompletionFunc("output", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) { //nolint:errcheck
+		return []string{"json\tJSON output", "table\tFormatted table", "text\tTab-separated text"}, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return
+	}
+	err = rootCmd.RegisterFlagCompletionFunc("region", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) { //nolint:errcheck
+		return []string{"HCM-3\tHo Chi Minh City", "HAN\tHa Noi"}, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return
+	}
+
 	rootCmd.AddCommand(configure.ConfigureCmd)
-	rootCmd.AddCommand(vks.VksCmd)
 	rootCmd.AddCommand(vserver.VServerCmd)
 	rootCmd.AddCommand(mcp.McpCmd)
 }
 
-// Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

@@ -7,7 +7,7 @@ import (
 	"github.com/vngcloud/greennode-cli/internal/vserverclient"
 )
 
-func createClient(cmd *cobra.Command) (*client.GreenodeClient, *config.Config, error) {
+func createClient(cmd *cobra.Command) (*client.GreenNodeClient, *config.Config, error) {
 	return vserverclient.BuildClient(cmd)
 }
 
@@ -82,6 +82,6 @@ func nilIfEmpty(s string) interface{} {
 	return s
 }
 
-func suggestZones(apiClient *client.GreenodeClient, projectID string) error {
+func suggestZones(apiClient *client.GreenNodeClient, projectID string) error {
 	return vserverclient.SuggestZoneIDs(apiClient, projectID)
 }
