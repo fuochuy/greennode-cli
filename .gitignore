@@ -1,0 +1,14 @@
+# Built binaries
+grn
+grn-linux-amd64
+grn-linux-arm64
+grn-darwin-amd64
+grn-darwin-arm64
+grn-windows-amd64.exe
+
+# IDE
+.idea/
+.vscode/
+
+# Go build cache
+go/vendor/

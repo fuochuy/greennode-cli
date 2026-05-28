@@ -4,15 +4,54 @@ Step-by-step guide to install the GreenNode CLI, configure credentials, and mana
 
 ---
 
+## Step 1 — Install
+
+Download the latest pre-built binary from [GitHub Releases](https://github.com/fuochuy/greennode-cli/releases/latest).
+
+=== "macOS (Apple Silicon)"
+
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-darwin-arm64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
+
+=== "macOS (Intel)"
+
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-darwin-amd64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
+
+=== "Linux (amd64)"
+
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-linux-amd64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
+
+=== "Linux (arm64)"
+
+    ```bash
+    curl -L -o grn https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-linux-arm64
+    chmod +x grn
+    sudo mv grn /usr/local/bin/
+    ```
+
+=== "Windows"
+
+    Download [`grn-windows-amd64.exe`](https://github.com/fuochuy/greennode-cli/releases/latest/download/grn-windows-amd64.exe), rename it to `grn.exe`, and move it to a folder in your `PATH` (e.g. `C:\Windows\System32\`).
+
 === "Build from source"
 
-    Requires [Go 1.25+](https://go.dev/dl/).
+    Requires [Go 1.21+](https://go.dev/dl/).
 
     ```bash
     git clone https://github.com/fuochuy/greennode-cli.git
-    cd greennode-cli/go
-    go build -o grn .
-    sudo mv grn /usr/local/bin/
+    cd greennode-cli
+    make install
     ```
 
 Verify the installation:

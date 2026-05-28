@@ -39,5 +39,5 @@ func runGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get server %s: %w", serverID, err)
 	}
 
-	return outputResult(cmd, cfg, result)
+	return outputResult(cmd, cfg, transformServerResult(result))
 }

@@ -59,5 +59,5 @@ func runList(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to list servers: %w", err)
 	}
 
-	return outputResult(cmd, cfg, result)
+	return outputResult(cmd, cfg, transformServerResult(result))
 }

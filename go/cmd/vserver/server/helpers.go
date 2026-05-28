@@ -97,6 +97,93 @@ func suggestRootDiskTypes(zoneID string) error {
 	return fmt.Errorf("flag --root-disk-type-id is required")
 }
 
+var serverRemoveKeys = map[string]bool{
+	"zone":              true,
+	"stopBeforeMigrate": true,
+	"migrationStatus":   true,
+	"migrateState":      true,
+	"enableLog":         true,
+	"enableMetric":      true,
+	"product":           true,
+	"metadata":          true,
+}
+
+func transformServer(obj map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{}, len(obj))
+	for k, v := range obj {
+		if serverRemoveKeys[k] {
+			continue
+		}
+		switch k {
+		case "image":
+			if img, ok := v.(map[string]interface{}); ok {
+				result["imageId"] = img["id"]
+			} else {
+				result["imageId"] = v
+			}
+		case "flavor":
+			if flv, ok := v.(map[string]interface{}); ok {
+				result["flavorId"] = flv["flavorId"]
+			} else {
+				result["flavorId"] = v
+			}
+		case "internalInterfaces":
+			if ifaces, ok := v.([]interface{}); ok && len(ifaces) > 0 {
+				if iface, ok := ifaces[0].(map[string]interface{}); ok {
+					result["privateIp"] = iface["fixedIp"]
+					result["publicIp"] = iface["floatingIp"]
+				}
+			}
+		default:
+			result[k] = v
+		}
+	}
+	return result
+}
+
+func transformServerList(items []interface{}) []interface{} {
+	out := make([]interface{}, len(items))
+	for i, item := range items {
+		if obj, ok := item.(map[string]interface{}); ok {
+			out[i] = transformServer(obj)
+		} else {
+			out[i] = item
+		}
+	}
+	return out
+}
+
+// transformServerResult applies field removals and renames to API server responses.
+// Handles envelopes: {"data": {...}}, {"listData": [...]}, plain object, and plain array.
+func transformServerResult(result interface{}) interface{} {
+	switch v := result.(type) {
+	case map[string]interface{}:
+		// Single-object envelope: {"data": {...}}
+		if data, ok := v["data"].(map[string]interface{}); ok {
+			out := make(map[string]interface{}, len(v))
+			for k, val := range v {
+				out[k] = val
+			}
+			out["data"] = transformServer(data)
+			return out
+		}
+		// List envelope: {"listData": [...]}
+		if listData, ok := v["listData"].([]interface{}); ok {
+			out := make(map[string]interface{}, len(v))
+			for k, val := range v {
+				out[k] = val
+			}
+			out["listData"] = transformServerList(listData)
+			return out
+		}
+		// Plain server object
+		return transformServer(v)
+	case []interface{}:
+		return transformServerList(v)
+	}
+	return result
+}
+
 // printItems iterates the items array from a response envelope and calls fn for each object.
 func printItems(result interface{}, keys []string, fn func(map[string]interface{})) {
 	var items []interface{}
